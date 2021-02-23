@@ -9,7 +9,7 @@ import os
 
 BEST_ACC = 0
 
-def train_pytorch(checkpoint):
+def train_pytorch(checkpoint, pretrained=None):
     transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -24,7 +24,11 @@ def train_pytorch(checkpoint):
                                             shuffle=False, num_workers=2)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    net = MobileNetV2(n_class=10, input_size=32).to(device)
+    if pretrained:
+        net = MobileNetV2(n_class=10, input_size=32).load(pretrained).to(device)
+    else:
+        net = MobileNetV2(n_class=10, input_size=32).to(device)
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
