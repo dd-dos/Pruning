@@ -18,7 +18,11 @@ def train_pytorch(checkpoint):
                                             download=True, transform=transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
                                             shuffle=True, num_workers=2)
-    
+    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
+                                        download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
+                                            shuffle=False, num_workers=2)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net = MobileNetV2(n_class=10, input_size=32).to(device)
     criterion = nn.CrossEntropyLoss()
@@ -48,14 +52,11 @@ def train_pytorch(checkpoint):
                     (epoch + 1, i + 1, running_loss / 2000))
                 running_loss = 0.0
 
-        test_pytorch(net, checkpoint)
+        print("Testing...\n")
+        test_pytorch(net, checkpoint, testloader)
         
-def test_pytorch(net, checkpoint):
+def test_pytorch(net, checkpoint, testloader):
     global BEST_ACC
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                        download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=4,
-                                            shuffle=False, num_workers=2)
 
     classes = ('plane', 'car', 'bird', 'cat',
             'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
