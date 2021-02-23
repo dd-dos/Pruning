@@ -52,7 +52,7 @@ def train_pytorch(checkpoint):
                     (epoch + 1, i + 1, running_loss / 2000))
                 running_loss = 0.0
 
-        print("Testing...\n")
+        print("Testing...")
         test_pytorch(net, checkpoint, testloader)
         
 def test_pytorch(net, checkpoint, testloader):
@@ -88,7 +88,7 @@ def test_pytorch(net, checkpoint, testloader):
     for i in range(10):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
-        print("Overall accuracy: {}", current_acc)
+    print("Overall accuracy: {}", current_acc)
 
 if __name__=="__main__":
     import argparse
