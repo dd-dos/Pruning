@@ -87,7 +87,7 @@ def test_pytorch(net, checkpoint):
     for i in range(10):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
-        print("Overall accuracy: {}" current_acc)
+        print("Overall accuracy: {}", current_acc)
 
 if __name__=="__main__":
     import argparse
@@ -96,5 +96,5 @@ if __name__=="__main__":
     parser.add_argument("--cp", help='checkpoint')
 
     args = parser.parse_args()
-    
+
     train_pytorch(args.cp)
