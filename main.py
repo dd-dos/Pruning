@@ -99,7 +99,8 @@ if __name__=="__main__":
 
     parser = argparse.ArgumentParser(description="train mobilenet classifier")
     parser.add_argument("--cp", help='checkpoint')
+    parser.add_argument("--pretrained", help='pretrain model')
 
     args = parser.parse_args()
 
-    train_pytorch(args.cp)
+    train_pytorch(args.cp, args.pretrained)
