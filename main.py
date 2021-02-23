@@ -88,3 +88,13 @@ def test_pytorch(net, checkpoint):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
         print("Overall accuracy: {}" current_acc)
+
+if __name__=="__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="train mobilenet classifier")
+    parser.add_argument("--cp", help='checkpoint')
+
+    args = parser.parse_args()
+    
+    train_pytorch(args.cp)
