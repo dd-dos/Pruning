@@ -19,11 +19,10 @@ def train_pytorch(checkpoint):
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=4,
                                             shuffle=True, num_workers=2)
     
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     net = MobileNetV2(n_class=10, input_size=32).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     for epoch in range(10):  # loop over the dataset multiple times
         running_loss = 0.0
