@@ -25,7 +25,7 @@ def train_pytorch(checkpoint, pretrained=None):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if pretrained:
-        net = MobileNetV2(n_class=10, input_size=32).load(pretrained).to(device)
+        net = torch.load(pretrained).to(device)
     else:
         net = MobileNetV2(n_class=10, input_size=32).to(device)
 
