@@ -72,9 +72,10 @@ def test_imagenet(net, imagenet_path, batch_size):
         
     return counter/dataset.__len__()*100
 
-def prune_random_unstructured(net, imagenet_path, batch_size):
+def prune_random_unstructured(net_creator, imagenet_path, batch_size):
     for i in range(1,5):
         for idx in range(2,18):
+            net = net_creator()
             module = net.features[idx].conv
             amount = i/10
             prune.random_unstructured(module[0][0], name='weight', amount=amount)
@@ -85,9 +86,10 @@ def prune_random_unstructured(net, imagenet_path, batch_size):
                 file.write("method: rand_unstr - module: {} - prune amount: {:.0%} - accuracy: {} \n".format(idx, amount, result))
 
 
-def prune_global_unstructured(net, imagenet_path, batch_size):
+def prune_global_unstructured(net_creator, imagenet_path, batch_size):
     for i in range(1,10):
         amount = i/10
+        net = net_creator()
         module = net.features
         para_to_prune = []
         for idx in range(2,18):
@@ -108,9 +110,7 @@ def prune_global_unstructured(net, imagenet_path, batch_size):
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {} \n".format(amount, result))
 
 if __name__=="__main__":
-    net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
-    net.eval()
     # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
     # torch.save(net, "prune_model/base.pth")
-    prune_global_unstructured(net, "./imagenet-sample-images", batch_size=8)
-    prune_random_unstructured(net, "./imagenet-sample-images", batch_size=8)
+    prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
