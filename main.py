@@ -58,10 +58,10 @@ def test_imagenet(net, imagenet_path, batch_size):
     with torch.no_grad():
         for inps, labels in tqdm(loader):  
             inps = inps.to(device)
-            out = net(inps).numpy()
+            out = net(inps).cpu().numpy()
             out = np.argmax(out, axis=1)
-            
-            labels = labels.numpy()
+
+            labels = labels.cpu().numpy()
             diff = out - labels
             counter += len(np.where(diff==0)[0])
         
