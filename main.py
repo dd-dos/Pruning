@@ -132,7 +132,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
             speed = 1000/(time.time-time0)
-            
+
             with open("log.txt",'a+') as file:
                 file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {} - speed: {} \n".format(idx, amount, result, speed))
 if __name__=="__main__":
@@ -140,5 +140,5 @@ if __name__=="__main__":
     # torch.save(net, "prune_model/base.pth")
     # prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
     prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
-    # prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
 
