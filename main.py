@@ -8,6 +8,8 @@ import torchvision.transforms as transforms
 import torch.nn.utils.prune as prune
 import numpy as np
 import os
+import psutil
+import time
 
 class ImageNet(Dataset):
     def __init__(self, root_dir, transform=None):
@@ -80,10 +82,16 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
             amount = i/10
             prune.random_unstructured(module[0][0], name='weight', amount=amount)
             prune.random_unstructured(module[1][0], name='weight', amount=amount)
+            
+            prune.remove(module[0][0], 'weight')
+            prune.remove(module[1][0], 'weight')
+
+            time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
+            speed = 1000/(time.time-time0)
 
             with open("log.txt",'a+') as file:
-                file.write("method: rand_unstr - module: {} - prune amount: {:.0%} - accuracy: {} \n".format(idx, amount, result))
+                file.write("method: rand_unstr - module: {} - prune amount: {:.0%} - accuracy: {} - speed: {} \n".format(idx, amount, result, speed))
 
 
 def prune_global_unstructured(net_creator, imagenet_path, batch_size):
@@ -117,14 +125,20 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             amount = i/10
             prune.L1Unstructured.apply(module[0][0], name='weight', amount=amount)
             prune.L1Unstructured.apply(module[1][0], name='weight', amount=amount)
-            result = test_imagenet(net, imagenet_path, batch_size)
 
+            prune.remove(module[0][0], 'weight')
+            prune.remove(module[1][0], 'weight')
+
+            time0 = time.time()
+            result = test_imagenet(net, imagenet_path, batch_size)
+            speed = 1000/(time.time-time0)
+            
             with open("log.txt",'a+') as file:
-                file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {} \n".format(idx, amount, result))
+                file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {} - speed: {} \n".format(idx, amount, result, speed))
 if __name__=="__main__":
     # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
     # torch.save(net, "prune_model/base.pth")
     # prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
-    # prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
-    prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    # prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
 

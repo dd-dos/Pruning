@@ -1,0 +1,3 @@
+method: rand_unstr - module: 2 - prune amount: 10% - accuracy: 28.299999999999997 - mem: 0.0% 
+method: rand_unstr - module: 3 - prune amount: 10% - accuracy: 16.0 - mem: 0.0% 
+method: rand_unstr - module: 4 - prune amount: 10% - accuracy: 75.1 - mem: 0.0% 
