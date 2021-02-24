@@ -109,8 +109,22 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
         with open("log.txt",'a+') as file:
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {} \n".format(amount, result))
 
+def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
+    for i in range(1,5):
+        for idx in range(2,18):
+            net = net_creator()
+            module = net.features[idx].conv
+            amount = i/10
+            prune.L1Unstructured.apply(module[0][0], name='weight', amount=amount)
+            prune.L1Unstructured.apply(module[1][0], name='weight', amount=amount)
+            result = test_imagenet(net, imagenet_path, batch_size)
+
+            with open("log.txt",'a+') as file:
+                file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {} \n".format(idx, amount, result))
 if __name__=="__main__":
     # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
     # torch.save(net, "prune_model/base.pth")
-    prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
-    prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    # prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    # prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+
