@@ -1,0 +1,2 @@
+method: glob_unstr - prune amount: 1000% - accuracy: 83.8 
+method: glob_unstr - prune amount: 2000% - accuracy: 77.3 

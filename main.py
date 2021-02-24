@@ -23,15 +23,15 @@ class ImageNet(Dataset):
             categories = [s.strip() for s in f.readlines()]
         self.categories = [item.replace(' ', '_') for item in categories]
 
-        print("checking label...")
-        print("found {} labels".format(self.__len__()))
-        for idx in range(self.__len__()):
-            label_name = '_'.join(self.images_list[idx].split('.')[0].split('_')[1:])
-            if label_name in self.categories:
-                pass
-            else:
-                print("{} not in categories".format(label_name))
-        print("done checking!")
+        # print("checking label...")
+        # print("found {} labels".format(self.__len__()))
+        # for idx in range(self.__len__()):
+        #     label_name = '_'.join(self.images_list[idx].split('.')[0].split('_')[1:])
+        #     if label_name in self.categories:
+        #         pass
+        #     else:
+        #         print("{} not in categories".format(label_name))
+        # print("done checking!")
 
     def __len__(self):
         return len(self.images_list)
@@ -61,8 +61,48 @@ def test_imagenet(net, imagenet_path, batch_size):
         
     return counter/dataset.__len__()*100
 
+def prune_random_unstructured(net, imagenet_path, batch_size):
+    for idx in range(2,18):
+        module = net.features[idx].conv
+
+        for i in range(1,5):
+            amount = i/10
+            prune.random_unstructured(module[0][0], name='weight', amount=amount)
+            prune.random_unstructured(module[1][0], name='weight', amount=amount)
+            result = test_imagenet(net, imagenet_path, batch_size)
+
+            with open("log.txt",'a+') as file:
+                file.write("method: rand_unstr - module: {} - prune amount: {:.0%} - accuracy: {} \n".format(idx, amount, result))
+
+
+def prune_global_unstructured(net, imagenet_path, batch_size):
+    module = net.features
+    para_to_prune = []
+    for idx in range(2,18):
+        sub_module = module[idx]
+        conv2d_1 = sub_module.conv[0][0]
+        conv2d_2 = sub_module.conv[1][0]
+        para_to_prune.append((conv2d_1, 'weight'))
+        para_to_prune.append((conv2d_2, 'weight'))
+
+    for i in range(1,10):
+        print("prune amount: {}%".format(i*10))
+        prune.global_unstructured(
+            para_to_prune,
+            pruning_method=prune.L1Unstructured,
+            amount = i/10
+        )
+
+        result = test_imagenet(net, imagenet_path, batch_size)
+        with open("log.txt",'a+') as file:
+            file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {} \n".format(i/10, result))
+        
+
+
 if __name__=="__main__":
     net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
     net.eval()
     # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
-    import ipdb; ipdb.set_trace()
+    # torch.save(net, "prune_model/base.pth")
+    prune_global_unstructured(net, "./imagenet-sample-images", batch_size=8)
+    prune_random_unstructured(net, "./imagenet-sample-images", batch_size=8)
