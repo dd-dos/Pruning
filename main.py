@@ -5,6 +5,7 @@ from tqdm import tqdm
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import torch.nn.utils.prune as prune
 import numpy as np
 import os
 
@@ -63,4 +64,5 @@ def test_imagenet(net, imagenet_path, batch_size):
 if __name__=="__main__":
     net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
     net.eval()
-    print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
+    # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
+    import ipdb; ipdb.set_trace()
