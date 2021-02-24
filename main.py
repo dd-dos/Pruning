@@ -48,13 +48,19 @@ class ImageNet(Dataset):
 
 
 def test_imagenet(net, imagenet_path, batch_size):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net = net.to(device)
+
     dataset = ImageNet(imagenet_path)
     counter = 0
     loader = DataLoader(dataset, batch_size=batch_size, num_workers=8)
+
     with torch.no_grad():
         for inps, labels in tqdm(loader):  
+            inps = inps.to(device)
             out = net(inps).numpy()
             out = np.argmax(out, axis=1)
+            
             labels = labels.numpy()
             diff = out - labels
             counter += len(np.where(diff==0)[0])
