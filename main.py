@@ -88,7 +88,7 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
 
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
-            speed = 1000/(time.time-time0)
+            speed = 1000/(time.time()-time0)
 
             with open("log.txt",'a+') as file:
                 file.write("method: rand_unstr - module: {} - prune amount: {:.0%} - accuracy: {} - speed: {} \n".format(idx, amount, result, speed))
@@ -131,7 +131,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
 
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
-            speed = 1000/(time.time-time0)
+            speed = 1000/(time.time()-time0)
 
             with open("log.txt",'a+') as file:
                 file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {} - speed: {} \n".format(idx, amount, result, speed))
