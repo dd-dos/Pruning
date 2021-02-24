@@ -46,6 +46,11 @@ class ImageNet(Dataset):
 
         return inp, label
 
+def init_net():
+    net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
+    net.eval()
+
+    return net
 
 def test_imagenet(net, imagenet_path, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -68,10 +73,9 @@ def test_imagenet(net, imagenet_path, batch_size):
     return counter/dataset.__len__()*100
 
 def prune_random_unstructured(net, imagenet_path, batch_size):
-    for idx in range(2,18):
-        module = net.features[idx].conv
-
-        for i in range(1,5):
+    for i in range(1,5):
+        for idx in range(2,18):
+            module = net.features[idx].conv
             amount = i/10
             prune.random_unstructured(module[0][0], name='weight', amount=amount)
             prune.random_unstructured(module[1][0], name='weight', amount=amount)
@@ -82,28 +86,26 @@ def prune_random_unstructured(net, imagenet_path, batch_size):
 
 
 def prune_global_unstructured(net, imagenet_path, batch_size):
-    module = net.features
-    para_to_prune = []
-    for idx in range(2,18):
-        sub_module = module[idx]
-        conv2d_1 = sub_module.conv[0][0]
-        conv2d_2 = sub_module.conv[1][0]
-        para_to_prune.append((conv2d_1, 'weight'))
-        para_to_prune.append((conv2d_2, 'weight'))
-
     for i in range(1,10):
-        print("prune amount: {}%".format(i*10))
+        amount = i/10
+        module = net.features
+        para_to_prune = []
+        for idx in range(2,18):
+            sub_module = module[idx]
+            conv2d_1 = sub_module.conv[0][0]
+            conv2d_2 = sub_module.conv[1][0]
+            para_to_prune.append((conv2d_1, 'weight'))
+            para_to_prune.append((conv2d_2, 'weight'))
+
         prune.global_unstructured(
             para_to_prune,
             pruning_method=prune.L1Unstructured,
-            amount = i/10
+            amount = amount
         )
 
         result = test_imagenet(net, imagenet_path, batch_size)
         with open("log.txt",'a+') as file:
-            file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {} \n".format(i/10, result))
-        
-
+            file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {} \n".format(amount, result))
 
 if __name__=="__main__":
     net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
