@@ -86,6 +86,9 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
             prune.remove(module[0][0], 'weight')
             prune.remove(module[1][0], 'weight')
 
+            sparsified_net = net.to_sparse()
+            torch.save(sparsified_net, "random_unstructured.{}.{}.pth".format(i, idx))
+            
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
             speed = 1000/(time.time()-time0)
@@ -113,6 +116,9 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
             amount = amount
         )
 
+        sparsified_net = net.to_sparse()
+        torch.save(sparsified_net, "global_unstructured.{}.pth".format(i))
+        
         result = test_imagenet(net, imagenet_path, batch_size)
         with open("log.txt",'a+') as file:
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {:.2f} \n".format(amount, result))
@@ -126,8 +132,8 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             prune.L1Unstructured.apply(module[0][0], name='weight', amount=amount)
             prune.L1Unstructured.apply(module[1][0], name='weight', amount=amount)
 
-            prune.remove(module[0][0], 'weight')
-            prune.remove(module[1][0], 'weight')
+            sparsified_net = net.to_sparse()
+            torch.save(sparsified_net, "l1_unstructured.{}.{}.pth".format(i, idx))
 
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
