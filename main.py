@@ -116,8 +116,8 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
         result = test_imagenet(net, imagenet_path, batch_size)
 
         for idx in range(2,18):
-            net.features[idx].conv[0][0] = net.features[idx].conv[0][0].to_sparse()
-            net.features[idx].conv[1][0] = net.features[idx].conv[1][0].to_sparse()
+            net.features[idx].conv[0][0] = net.features[idx].conv[0][0].data.to_sparse()
+            net.features[idx].conv[1][0] = net.features[idx].conv[1][0].data.to_sparse()
         
         torch.save(net, "/content/drive/MyDrive/training/Pruning/global_unstructured.{}.pth".format(i))
 
