@@ -131,10 +131,10 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             result = test_imagenet(net, imagenet_path, batch_size)
             speed = 1000/(time.time()-time0)
 
-            net.features[idx].conv[0][0].weight = torch.nn.Parameter(module[0][0].weight.data.to_sparse())
-            net.features[idx].conv[1][0].weight = torch.nn.Parameter(module[1][0].weight.data.to_sparse())
+            net.features[idx].conv[0][0].weight = module[0][0].weight.data.to_sparse()
+            net.features[idx].conv[1][0].weight = module[1][0].weight.data.to_sparse()
             torch.save(net, "l1_unstructured.{}.{}.pth".format(i, idx))
-            
+
             with open("log.txt",'a+') as file:
                 file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {:.2f} - speed: {:.2f} \n".format(idx, amount, result, speed))
 if __name__=="__main__":
