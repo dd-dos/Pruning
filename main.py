@@ -129,7 +129,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
 
             net.features[idx].conv[0][0].weight = torch.nn.Parameter(module[0][0].weight.data.to_sparse())
             net.features[idx].conv[1][0].weight = torch.nn.Parameter(module[1][0].weight.data.to_sparse())
-            torch.save(sparsified_net, "l1_unstructured.{}.{}.pth".format(i, idx))
+            torch.save(net, "l1_unstructured.{}.{}.pth".format(i, idx))
 
             time0 = time.time()
             result = test_imagenet(net, imagenet_path, batch_size)
