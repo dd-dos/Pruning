@@ -95,7 +95,7 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
 
 
 def prune_global_unstructured(net_creator, imagenet_path, batch_size):
-    for i in range(9,10):
+    for i in range(3,10):
         amount = i/10
         net = net_creator()
         module = net.features
