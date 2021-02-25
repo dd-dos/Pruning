@@ -95,7 +95,7 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
 
 
 def prune_global_unstructured(net_creator, imagenet_path, batch_size):
-    for i in range(1,10):
+    for i in range(9,10):
         amount = i/10
         net = net_creator()
         module = net.features
@@ -114,6 +114,13 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
         )
 
         result = test_imagenet(net, imagenet_path, batch_size)
+
+        for idx in range(2,18):
+            net.features[idx].conv[0][0] = net.features[idx].conv[0][0].to_sparse()
+            net.features[idx].conv[1][0] = net.features[idx].conv[1][0].to_sparse()
+        
+        torch.save(net, "/content/drive/MyDrive/training/Pruning/global_unstructured.{}.pth".format(i))
+
         with open("log.txt",'a+') as file:
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {:.2f} \n".format(amount, result))
 
@@ -131,6 +138,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             result = test_imagenet(net, imagenet_path, batch_size)
             speed = 1000/(time.time()-time0)
 
+            # import ipdb; ipdb.set_trace()
             net.features[idx].conv[0][0].weight = module[0][0].weight.data.to_sparse()
             net.features[idx].conv[1][0].weight = module[1][0].weight.data.to_sparse()
             torch.save(net, "/content/drive/MyDrive/training/Pruning/l1_unstructured.{}.{}.pth".format(i, idx))
