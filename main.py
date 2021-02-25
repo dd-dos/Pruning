@@ -133,7 +133,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
 
             net.features[idx].conv[0][0].weight = module[0][0].weight.data.to_sparse()
             net.features[idx].conv[1][0].weight = module[1][0].weight.data.to_sparse()
-            torch.save(net, "l1_unstructured.{}.{}.pth".format(i, idx))
+            torch.save(net, "/content/drive/MyDrive/training/Pruning/l1_unstructured.{}.{}.pth".format(i, idx))
 
             with open("log.txt",'a+') as file:
                 file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {:.2f} - speed: {:.2f} \n".format(idx, amount, result, speed))
