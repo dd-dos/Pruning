@@ -118,7 +118,7 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {:.2f} \n".format(amount, result))
 
 def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
-    for i in range(1,5):
+    for i in range(4,5):
         for idx in range(2,18):
             net = net_creator()
             module = net.features[idx].conv
