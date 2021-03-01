@@ -60,7 +60,7 @@ def init_quantized_net():
     model_fp32 = init_net()
     model_int8 = torch.quantization.quantize_dynamic(
         model_fp32,
-        {torch.nn.Conv2d},
+        {torch.nn.modules.conv.Conv2d},
         dtype=torch.qint8
     )
 
