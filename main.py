@@ -170,6 +170,7 @@ def test_and_save_result(net, imagenet_path, batch_size):
     result = test_imagenet(net, imagenet_path, batch_size)
     with open("log.txt", "a+") as file:
         file.write("test accuracy: {}%".format(result))
+    torch.save(net, "tested_model.pth")
 
 
 def shrink_sparsified(sparsed_tensor):
