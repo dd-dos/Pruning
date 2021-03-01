@@ -168,6 +168,8 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
 
 def test_and_save_result(net, imagenet_path, batch_size):
     result = test_imagenet(net, imagenet_path, batch_size)
+    import os
+    os.remove("log.txt")
     with open("log.txt", "a+") as file:
         file.write("test accuracy: {}%".format(result))
     torch.save(net, "tested_model.pth")
