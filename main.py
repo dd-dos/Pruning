@@ -48,11 +48,24 @@ class ImageNet(Dataset):
 
         return inp, label
 
+
 def init_net():
     net = torch.hub.load('pytorch/vision:v0.6.0', 'mobilenet_v2', pretrained=True)
     net.eval()
 
     return net
+
+
+def init_quantized_net():
+    model_fp32 = init_net()
+    model_int8 = torch.quantization.quantize_dynamic(
+        model_fp32,
+        {torch.nn.Conv2D},
+        dtype=torch.qint8
+    )
+
+    return model_int8
+
 
 def test_imagenet(net, imagenet_path, batch_size):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -73,6 +86,7 @@ def test_imagenet(net, imagenet_path, batch_size):
             counter += len(np.where(diff==0)[0])
         
     return counter/dataset.__len__()*100
+
 
 def prune_random_unstructured(net_creator, imagenet_path, batch_size):
     for i in range(1,5):
@@ -95,7 +109,7 @@ def prune_random_unstructured(net_creator, imagenet_path, batch_size):
 
 
 def prune_global_unstructured(net_creator, imagenet_path, batch_size):
-    for i in range(3,10):
+    for i in range(8,10):
         amount = i/10
         net = net_creator()
         module = net.features
@@ -113,16 +127,21 @@ def prune_global_unstructured(net_creator, imagenet_path, batch_size):
             amount = amount
         )
 
-        result = test_imagenet(net, imagenet_path, batch_size)
+        # result = test_imagenet(net, imagenet_path, batch_size)
 
         for idx in range(2,18):
             net.features[idx].conv[0][0].weight = net.features[idx].conv[0][0].weight.data.to_sparse()
             net.features[idx].conv[1][0].weight = net.features[idx].conv[1][0].weight.data.to_sparse()
-        
+
+            net.features[idx].conv[0][0].weight = shrink_sparsified(net.features[idx].conv[0][0].weight)
+            net.features[idx].conv[1][0].weight = shrink_sparsified(net.features[idx].conv[1][0].weight)
+
+        import ipdb; ipdb.set_trace()
         torch.save(net, "/content/drive/MyDrive/training/Pruning/global_unstructured.{}.pth".format(i))
 
         with open("log.txt",'a+') as file:
             file.write("method: glob_unstr - prune amount: {:.0%} - accuracy: {:.2f} \n".format(amount, result))
+
 
 def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
     for i in range(8,10):
@@ -134,21 +153,40 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
             prune.L1Unstructured.apply(module[0][0], name='weight', amount=amount)
             prune.L1Unstructured.apply(module[1][0], name='weight', amount=amount)
             
-            time0 = time.time()
-            result = test_imagenet(net, imagenet_path, batch_size)
-            speed = 1000/(time.time()-time0)
+            # time0 = time.time()
+            # result = test_imagenet(net, imagenet_path, batch_size)
+            # speed = 1000/(time.time()-time0)
 
-            # import ipdb; ipdb.set_trace()
+            import ipdb; ipdb.set_trace()
             net.features[idx].conv[0][0].weight = module[0][0].weight.data.to_sparse()
             net.features[idx].conv[1][0].weight = module[1][0].weight.data.to_sparse()
             torch.save(net, "/content/drive/MyDrive/training/Pruning/l1_unstructured.{}.{}.pth".format(i, idx))
 
             with open("log.txt",'a+') as file:
                 file.write("method: l1_unstr - module: {} - prune amount: {:.0%} - accuracy: {:.2f} - speed: {:.2f} \n".format(idx, amount, result, speed))
+
+
+def test_and_save_result(net, imagenet_path, batch_size):
+    result = test_imagenet(net, imagenet_path, batch_size)
+    with open("log.txt, a+") as file:
+        file.write("test accuracy: {}%".format(result))
+
+
+def shrink_sparsified(sparsed_tensor):
+    idx = sparsed_tensor.indices().type(torch.uint8)
+    value = sparsed_tensor.values()
+    size = sparsed_tensor.size()
+
+    import ipdb; ipdb.set_trace()
+
+    return torch.sparse.FloatTensor(idx, value, size)
+
 if __name__=="__main__":
     # print(test_imagenet(net, "./imagenet-sample-images", batch_size=8))
     # torch.save(net, "prune_model/base.pth")
-    prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    # prune_global_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
     # prune_random_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
     # prune_l1_unstructured(init_net, "./imagenet-sample-images", batch_size=8)
+    net = init_quantized_net()
+    test_and_save_result(net, "./imagenet-sample-images", batch_size=32)
 
