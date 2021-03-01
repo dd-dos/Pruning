@@ -168,7 +168,7 @@ def prune_l1_unstructured(net_creator, imagenet_path, batch_size):
 
 def test_and_save_result(net, imagenet_path, batch_size):
     result = test_imagenet(net, imagenet_path, batch_size)
-    with open("log.txt, a+") as file:
+    with open("log.txt", "a+") as file:
         file.write("test accuracy: {}%".format(result))
 
 
